@@ -7,7 +7,7 @@ echo 'export PATH=$PATH:/root/miniconda3/bin/' >> ~/.bashrc
 source ~/.bashrc
 
 conda create -n ssh-example python=3.7 -y
-git clone git@github.com:cicdw/ssh-etl-monitoring.git
+git clone https://github.com/cicdw/ssh-etl-monitoring.git
 cd ssh-etl-monitoring
 source activate ssh-example
 conda install --file requirements.txt
