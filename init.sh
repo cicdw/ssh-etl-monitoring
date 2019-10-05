@@ -10,4 +10,4 @@ conda create -n ssh-example python=3.7 -y
 git clone https://github.com/cicdw/ssh-etl-monitoring.git
 cd ssh-etl-monitoring
 source activate ssh-example
-conda install --file requirements.txt
+pip install -r requirements.txt
