@@ -13,7 +13,7 @@ from prefect.tasks.shell import ShellTask
 ## preliminary setup
 ## - create database
 ## - determine last seen date
-create_script = "CREATE TABLE IF NOT EXISTS SSHATTEMPTS (date TEXT PRIMARY KEY, username TEXT, port INTEGER, city TEXT, country TEXT, latitude REAL, longitude REAL)"
+create_script = "CREATE TABLE IF NOT EXISTS SSHATTEMPTS (timestamp TEXT, username TEXT, port INTEGER, city TEXT, country TEXT, latitude REAL, longitude REAL)"
 create_table = SQLiteScript(
     db="ssh.db", script=create_script, name="Create Database and Table"
 )
@@ -55,7 +55,7 @@ def transform(raw_data):
         if user_patt.findall(d["MESSAGE"]) and "Invalid" in d["MESSAGE"]:
             row = {}
 
-            row["date"] = datetime.fromtimestamp(
+            row["timestamp"] = datetime.fromtimestamp(
                 int(d["__REALTIME_TIMESTAMP"]) / 1e6
             ).strftime("%Y-%m-%d %H:%M:%S")
             row["username"] = user_patt.findall(d["MESSAGE"])[0]
@@ -74,11 +74,11 @@ def transform(raw_data):
 
 @task
 def insert_script(rows):
-    insert_cmd = "INSERT INTO SSHATTEMPTS (date, username, port, city, country, latitude, longitude) VALUES\n"
+    insert_cmd = "INSERT INTO SSHATTEMPTS (timestamp, username, port, city, country, latitude, longitude) VALUES\n"
     values = (
         ",\n".join(
             [
-                "('{date}', '{username}', {port}, '{city}', '{country}', {latitude}, {longitude})".format(
+                "('{timestamp}', '{username}', {port}, '{city}', '{country}', {latitude}, {longitude})".format(
                     **row
                 )
                 for row in rows
