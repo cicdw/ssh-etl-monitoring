@@ -12,6 +12,10 @@ jobs:
           command: pip install -r requirements.txt
 
       - run:
+          name: Install bleeding edge prefect
+          command: pip install -U git+https://github.com/PrefectHQ/prefect.git@return-all
+
+      - run:
           name: Run tests
           command: pytest -rfEsx
 

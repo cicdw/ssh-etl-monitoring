@@ -1,6 +1,6 @@
 import pendulum
 
-from monitoring_etl_flow import cmd
+from monitoring_etl_flow import cmd, transform
 
 
 class TestJournalCTLCommand:
@@ -16,3 +16,8 @@ class TestJournalCTLCommand:
         out = cmd.run(["1986-09-20 03:32:01"])
 
         assert '"1986-09-20 03:32:01"' in out
+
+
+class TestTransformTask:
+    def test_transform_runs_with_empty_list(self):
+        assert transform.run([]) == []
