@@ -46,7 +46,7 @@ def transform(raw_data):
     rows = []
 
     user_patt = re.compile("user (.*?) from")
-    network_patt = re.compile("from (.*?) port (.*?) $")
+    network_patt = re.compile("from (.*?) port (.*?)$")
 
     db_path = os.path.expanduser("~/GeoLite2-City_20191001/GeoLite2-City.mmdb")
     db_reader = geo_db.Reader(db_path)
@@ -60,9 +60,9 @@ def transform(raw_data):
             ).strftime("%Y-%m-%d %H:%M:%S")
             row["username"] = user_patt.findall(d["MESSAGE"])[0]
 
-            ip, port = network_patt.findall(d["MESSAGE"])[0]
+            ip, port_info = network_patt.findall(d["MESSAGE"])[0]
             location = db_reader.city(ip)
-            row["port"] = port
+            row["port"] = port_info.split()[0]
             row["city"] = location.city.name
             row["country"] = location.country.name
             row["latitude"] = location.location.latitude
