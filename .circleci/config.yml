@@ -1,0 +1,23 @@
+version: 2
+
+jobs:
+  run-tests:
+    docker:
+      - image: python:3.6
+    steps:
+      - checkout
+
+      - run:
+          name: Install requirements
+          command: pip install -r requirements.txt
+
+      - run:
+          name: Run tests
+          command: pytest -rfEsx
+
+workflows:
+  version: 2
+
+  "Run tests":
+    jobs:
+      - run-tests
