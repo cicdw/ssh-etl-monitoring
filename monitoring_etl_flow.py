@@ -19,7 +19,7 @@ create_table = SQLiteScript(
 )
 last_date = SQLiteQuery(
     db="ssh.db",
-    query="SELECT date FROM SSHATTEMPTS ORDER BY date DESC Limit 1",
+    query="SELECT timestamp FROM SSHATTEMPTS ORDER BY timestamp DESC Limit 1",
     name="Last Seen Date",
 )
 
