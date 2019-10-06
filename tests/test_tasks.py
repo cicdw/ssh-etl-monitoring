@@ -30,4 +30,4 @@ class TestTransformTask:
 
         assert row["username"] == "Boutique@123"
         assert row["port"] == 43146
-        assert row["timestamp"].startswith("2019-10-15")
+        assert row["timestamp"].startswith("2019-10")
