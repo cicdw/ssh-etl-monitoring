@@ -1,6 +1,7 @@
 import datetime
 import geoip2.database as geo_db
 import json
+import os
 import pendulum
 import re
 import sqlite3
@@ -48,7 +49,8 @@ def transform(raw_data):
     user_patt = re.compile("user (.*?) from")
     ip_patt = re.compile("from (.*?)$")
 
-    db_reader = geo_db.Reader("~/GeoLite2-City_20191001/GeoLite2-City.mmdb")
+    db_path = os.abspath("~/GeoLite2-City_20191001/GeoLite2-City.mmdb")
+    db_reader = geo_db.Reader(db_path)
 
     for d in data:
         if base_pattern.findall(d["MESSAGE"]):
