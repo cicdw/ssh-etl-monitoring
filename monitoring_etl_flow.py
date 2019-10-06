@@ -13,7 +13,7 @@ from prefect.tasks.shell import ShellTask
 ## preliminary setup
 ## - create database
 ## - determine last seen date
-create_script = "CREATE TABLE IF NOT EXISTS SSHATTEMPTS (date TEXT PRIMARY KEY, username TEXT, city TEXT, country TEXT, latitude REAL, longitude REAL)"
+create_script = "CREATE TABLE IF NOT EXISTS SSHATTEMPTS (date TEXT PRIMARY KEY, username TEXT, port INTEGER, city TEXT, country TEXT, latitude REAL, longitude REAL)"
 create_table = SQLiteScript(
     db="ssh.db", script=create_script, name="Create Database and Table"
 )
@@ -45,15 +45,14 @@ def transform(raw_data):
     data = [json.loads(line) for line in raw_data]
     rows = []
 
-    base_pattern = re.compile(".* Invalid user .* from .*")
     user_patt = re.compile("user (.*?) from")
-    ip_patt = re.compile("from (.*?)$")
+    network_patt = re.compile("from (.*?) port (.*?)$")
 
     db_path = os.path.expanduser("~/GeoLite2-City_20191001/GeoLite2-City.mmdb")
     db_reader = geo_db.Reader(db_path)
 
     for d in data:
-        if base_pattern.findall(d["MESSAGE"]):
+        if user_pattern.findall(d["MESSAGE"]):
             row = {}
 
             row["date"] = datetime.fromtimestamp(
@@ -61,7 +60,9 @@ def transform(raw_data):
             ).strftime("%Y-%m-%d %H:%M:%S")
             row["username"] = user_patt.findall(d["MESSAGE"])[0]
 
-            location = db_reader.city(info["ip"])
+            ip, port = network_patt.findall(d["MESSAGE"])[0]
+            location = db_reader.city(ip)
+            row["port"] = port
             row["city"] = location.city.name
             row["country"] = location.country.name
             row["latitude"] = location.location.latitude
