@@ -5,6 +5,11 @@ curl -fL https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -
 chmod u+x miniconda.sh 
 ./miniconda.sh -bfu
 echo 'export PATH=$PATH:/root/miniconda3/bin/' >> ~/.bashrc
+
+# default to DEBUG logging level
+echo 'export PREFECT__LOGGING__LEVEL="DEBUG"' >> ~/.bashrc
+
+# apply updates
 source ~/.bashrc
 
 # install the basics
