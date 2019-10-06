@@ -52,7 +52,7 @@ def transform(raw_data):
     db_reader = geo_db.Reader(db_path)
 
     for d in data:
-        if user_pattern.findall(d["MESSAGE"]):
+        if user_patt.findall(d["MESSAGE"]):
             row = {}
 
             row["date"] = datetime.fromtimestamp(
