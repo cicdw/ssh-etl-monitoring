@@ -49,7 +49,7 @@ def transform(raw_data):
     user_patt = re.compile("user (.*?) from")
     ip_patt = re.compile("from (.*?)$")
 
-    db_path = os.path.abspath("~/GeoLite2-City_20191001/GeoLite2-City.mmdb")
+    db_path = os.path.expanduser("~/GeoLite2-City_20191001/GeoLite2-City.mmdb")
     db_reader = geo_db.Reader(db_path)
 
     for d in data:
