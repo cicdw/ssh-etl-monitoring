@@ -78,7 +78,7 @@ def insert_script(rows):
     values = (
         ",\n".join(
             [
-                "('{date}', '{username}', {port}, '{city}', '{country}', latitude, longitude)".format(
+                "('{date}', '{username}', {port}, '{city}', '{country}', {latitude}, {longitude})".format(
                     **row
                 )
                 for row in rows
@@ -89,6 +89,8 @@ def insert_script(rows):
     return insert_cmd + values
 
 
+insert = SQLScript(name="Insert into DB", db="ssh.db")
+
 ## reporting
 ## - every day, send email report
 
@@ -96,3 +98,5 @@ with Flow("SSH ETL Monitoring") as flow:
     date = last_date(upstream_tasks=[create_table])
     raw_data = shell_task(command=cmd(date))
     clean_data = transform(raw_data)
+
+    db_insert = insert(insert_script(clean_data))
