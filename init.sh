@@ -17,3 +17,7 @@ git clone https://github.com/cicdw/ssh-etl-monitoring.git
 cd ssh-etl-monitoring
 source activate ssh-example
 pip install -r requirements.txt
+
+# download DB of IP data
+curl -fL https://geolite.maxmind.com/download/geoip/database/GeoLite2-City.tar.gz -o geocities.tar.gz
+tar -xzf geocities.tar.gz # creates file GeoLite2-City_20191001/GeoLite2-City.mmdb
