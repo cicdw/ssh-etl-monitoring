@@ -52,7 +52,7 @@ def transform(raw_data):
     db_reader = geo_db.Reader(db_path)
 
     for d in data:
-        if user_patt.findall(d["MESSAGE"]):
+        if user_patt.findall(d["MESSAGE"]) and "Invalid" in d["MESSAGE"]:
             row = {}
 
             row["date"] = datetime.fromtimestamp(
@@ -60,9 +60,9 @@ def transform(raw_data):
             ).strftime("%Y-%m-%d %H:%M:%S")
             row["username"] = user_patt.findall(d["MESSAGE"])[0]
 
-            ip, port_info = network_patt.findall(d["MESSAGE"])[0]
+            ip, port = network_patt.findall(d["MESSAGE"])[0]
             location = db_reader.city(ip)
-            row["port"] = port_info.split()[0]
+            row["port"] = int(port)
             row["city"] = location.city.name
             row["country"] = location.country.name
             row["latitude"] = location.location.latitude
