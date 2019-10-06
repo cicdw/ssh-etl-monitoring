@@ -1,6 +1,7 @@
 import datetime
 import geoip2.database as geo_db
 import json
+import pendulum
 import re
 import sqlite3
 
@@ -12,7 +13,7 @@ from prefect.tasks.shell import ShellTask
 ## - create database
 ## - determine last seen date
 create_sript = "CREATE TABLE SSHATTEMPTS IF NOT EXISTS (date TEXT PRIMARY KEY, username TEXT, city TEXT, country TEXT, latitude REAL, longitude REAL)"
-create_task = SQLiteScript(
+create_table = SQLiteScript(
     db="ssh.db", script=create_script, name="Create Database and Table"
 )
 last_date = SQLiteQuery(
@@ -28,7 +29,11 @@ last_date = SQLiteQuery(
 ## - place into database
 @task(name="Format Command")
 def cmd(last_date):
-    return "journalctl _COMM=sshd -o json --since {} --no-pager"
+    if not last_date:
+        since = pendulum.now("utc").add(hours=-48).strftime("%Y-%m-%d %H:%M:%S")
+    else:
+        since = last_date[-1]
+    return f"journalctl _COMM=sshd -o json --since {since} --no-pager"
 
 
 shell_task = ShellTask(name="Extract")
@@ -38,15 +43,20 @@ shell_task = ShellTask(name="Extract")
 def transform(raw_data):
     data = [json.loads(line) for line in raw_data]
     rows = []
-    pattern = re.compile(".* Invalid user .* from .*")
+
+    base_pattern = re.compile(".* Invalid user .* from .*")
     user_patt = re.compile("user (.*?) from")
     ip_patt = re.compile("from (.*?)$")
+
     db_reader = geo_db.Reader("~/GeoLite2-City_20191001/GeoLite2-City.mmdb")
 
     for d in data:
-        if pattern.findall(d["MESSAGE"]):
+        if base_pattern.findall(d["MESSAGE"]):
             row = {}
-            row["date"] = datetime.fromtimestamp(int(d["__REALTIME_TIMESTAMP"]) / 1e6)
+
+            row["date"] = datetime.fromtimestamp(
+                int(d["__REALTIME_TIMESTAMP"]) / 1e6
+            ).strftime("%Y-%m-%d %H:%M:%S")
             row["username"] = user_patt.findall(d["MESSAGE"])[0]
 
             location = db_reader.city(info["ip"])
@@ -61,3 +71,8 @@ def transform(raw_data):
 
 ## reporting
 ## - every day, send email report
+
+with Flow("SSH ETL Monitoring") as flow:
+    date = last_date(upstream_tasks=[create_table])
+    raw_data = shell_task(command=cmd(date))
+    clean_data = transform(raw_data)
