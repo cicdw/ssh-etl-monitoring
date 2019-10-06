@@ -36,7 +36,7 @@ def cmd(last_date):
     return f'journalctl _COMM=sshd -o json --since "{since}" --no-pager'
 
 
-shell_task = ShellTask(name="Extract")
+shell_task = ShellTask(name="Extract", return_all=True)
 
 
 @task(name="Transform")
