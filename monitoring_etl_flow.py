@@ -12,7 +12,7 @@ from prefect.tasks.shell import ShellTask
 ## preliminary setup
 ## - create database
 ## - determine last seen date
-create_sript = "CREATE TABLE SSHATTEMPTS IF NOT EXISTS (date TEXT PRIMARY KEY, username TEXT, city TEXT, country TEXT, latitude REAL, longitude REAL)"
+create_script = "CREATE TABLE SSHATTEMPTS IF NOT EXISTS (date TEXT PRIMARY KEY, username TEXT, city TEXT, country TEXT, latitude REAL, longitude REAL)"
 create_table = SQLiteScript(
     db="ssh.db", script=create_script, name="Create Database and Table"
 )
