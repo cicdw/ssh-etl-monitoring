@@ -1,6 +1,11 @@
+"""
+Tests of custom tasks.
+"""
 import pendulum
+import pytest
 
-from monitoring_etl_flow import cmd, transform
+from monitoring_etl_flow import cmd, insert_script, transform
+from prefect.engine.signals import SKIP
 
 
 class TestJournalCTLCommand:
@@ -46,3 +51,25 @@ class TestTransformTask:
         assert row["username"] == "Boutique@123"
         assert row["port"] == 43146
         assert row["timestamp"].startswith("2019-10")
+
+
+class TestInsertScript:
+    def test_insert_script_runs_with_empty_list(self):
+        with pytest.raises(SKIP, match="No rows to insert"):
+            insert_script.run([])
+
+    def test_insert_script_correctly_parses_row(self):
+        rows = [
+            dict(
+                username="chris",
+                port="22",
+                city="Oakland",
+                country="USA",
+                timestamp="2019-10-15",
+                latitude=20.9,
+                longitude=42.4,
+            )
+        ]
+        output = insert_script.run(rows)
+        assert "\n('2019-10-15', 'chris', 22, 'Oakland', 'USA', 20.9, 42.4);" in output
+        assert "INSERT INTO SSHATTEMPTS" in output

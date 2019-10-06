@@ -7,6 +7,7 @@ import sqlite3
 from datetime import datetime
 
 from prefect import task, Flow, Parameter
+from prefect.engine.signals import SKIP
 from prefect.tasks.database.sqlite import SQLiteScript, SQLiteQuery
 from prefect.tasks.shell import ShellTask
 
@@ -75,6 +76,8 @@ def transform(raw_data):
 @task
 def insert_script(rows):
     insert_cmd = "INSERT INTO SSHATTEMPTS (timestamp, username, port, city, country, latitude, longitude) VALUES\n"
+    if not rows:
+        raise SKIP("No rows to insert into database.")
     values = (
         ",\n".join(
             [
