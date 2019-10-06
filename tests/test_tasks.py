@@ -31,3 +31,18 @@ class TestTransformTask:
         assert row["username"] == "Boutique@123"
         assert row["port"] == 43146
         assert row["timestamp"].startswith("2019-10")
+
+    def test_transform_only_selects_certain_messages(self):
+        records = [
+            '{"MESSAGE": "Invalid user Boutique@123 from 162.243.165.39 port 43146", "__REALTIME_TIMESTAMP": "1570338064732555"}',
+            '{"MESSAGE": "Failed password for root from 49.88.112.74 port 28851 ssh2", "__REALTIME_TIMESTAMP": "1570338064732555"}',
+            '{"MESSAGE": "Disconnected from invalid user P@ssword@2012 212.47.238.207 port 40934 [preauth]", "__REALTIME_TIMESTAMP": "1570338064732555"}',
+            '{"MESSAGE": "Disconnected from authenticating user root 217.113.28.5 port 50516 [preauth]", "__REALTIME_TIMESTAMP": "1570338064732555"}',
+        ]
+        rows = transform.run([record])
+        assert len(rows) == 1
+        row = rows[0]
+
+        assert row["username"] == "Boutique@123"
+        assert row["port"] == 43146
+        assert row["timestamp"].startswith("2019-10")
