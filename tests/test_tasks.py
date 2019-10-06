@@ -44,7 +44,7 @@ class TestTransformTask:
             '{"MESSAGE": "Disconnected from invalid user P@ssword@2012 212.47.238.207 port 40934 [preauth]", "__REALTIME_TIMESTAMP": "1570338064732555"}',
             '{"MESSAGE": "Disconnected from authenticating user root 217.113.28.5 port 50516 [preauth]", "__REALTIME_TIMESTAMP": "1570338064732555"}',
         ]
-        rows = transform.run([records])
+        rows = transform.run(records)
         assert len(rows) == 1
         row = rows[0]
 
