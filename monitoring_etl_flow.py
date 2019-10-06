@@ -89,7 +89,7 @@ def insert_script(rows):
     return insert_cmd + values
 
 
-insert = SQLScript(name="Insert into DB", db="ssh.db")
+insert = SQLiteScript(name="Insert into DB", db="ssh.db")
 
 ## reporting
 ## - every day, send email report
