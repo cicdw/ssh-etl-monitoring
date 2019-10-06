@@ -4,10 +4,11 @@ import os
 import pendulum
 import re
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from prefect import task, Flow, Parameter
 from prefect.engine.signals import SKIP
+from prefect.schedules import IntervalSchedule
 from prefect.tasks.database.sqlite import SQLiteScript, SQLiteQuery
 from prefect.tasks.shell import ShellTask
 
@@ -97,7 +98,9 @@ insert = SQLiteScript(name="Insert into DB", db="ssh.db")
 ## reporting
 ## - every day, send email report
 
-with Flow("SSH ETL Monitoring") as flow:
+schedule = IntervalSchedule(interval=timedelta(hours=2))
+
+with Flow("SSH ETL Monitoring", schedule=schedule) as flow:
     date = last_date(upstream_tasks=[create_table])
     raw_data = shell_task(command=cmd(date))
     clean_data = transform(raw_data)
