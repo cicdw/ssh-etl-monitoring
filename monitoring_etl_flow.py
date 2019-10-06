@@ -72,6 +72,23 @@ def transform(raw_data):
     return rows
 
 
+@task
+def insert_script(rows):
+    insert_cmd = "INSERT INTO SSHATTEMPTS (date, username, port, city, country, latitude, longitude) VALUES\n"
+    values = (
+        ",\n".join(
+            [
+                "('{date}', '{username}', {port}, '{city}', '{country}', latitude, longitude)".format(
+                    **row
+                )
+                for row in rows
+            ]
+        )
+        + ";"
+    )
+    return insert_cmd + values
+
+
 ## reporting
 ## - every day, send email report
 
