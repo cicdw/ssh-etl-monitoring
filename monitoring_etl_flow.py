@@ -33,7 +33,7 @@ def cmd(last_date):
         since = pendulum.now("utc").add(hours=-48).strftime("%Y-%m-%d %H:%M:%S")
     else:
         since = last_date[-1]
-    return f"journalctl _COMM=sshd -o json --since {since} --no-pager"
+    return f'journalctl _COMM=sshd -o json --since "{since}" --no-pager'
 
 
 shell_task = ShellTask(name="Extract")
