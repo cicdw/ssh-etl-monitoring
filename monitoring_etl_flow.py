@@ -1,10 +1,10 @@
-import datetime
 import geoip2.database as geo_db
 import json
 import os
 import pendulum
 import re
 import sqlite3
+from datetime import datetime
 
 from prefect import task, Flow, Parameter
 from prefect.tasks.database.sqlite import SQLiteScript, SQLiteQuery
