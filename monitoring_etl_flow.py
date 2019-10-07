@@ -156,5 +156,5 @@ with Flow("SSH ETL Monitoring", schedule=schedule) as flow:
 
     db_insert = insert(insert_script(clean_data))
 
-    report_stats = collect_stats(timestamp=timestamp)
+    report_stats = collect_stats(timestamp=timestamp, upstream_tasks=[db_insert])
     final = email_report(msg=format_report(report_stats))
