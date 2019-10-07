@@ -121,7 +121,7 @@ def timestamp():
 class SQLSkip(SQLiteQuery):
     def run(self, timestamp):
         now = pendulum.now("utc")
-        if timestamp >= now.add(hours=-1.9):
+        if timestamp <= now.add(hours=-1.95):
             raise SKIP("Report sent in the last 24 hours.")
         return super().run()
 
