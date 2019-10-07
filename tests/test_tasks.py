@@ -4,7 +4,7 @@ Tests of custom tasks.
 import pendulum
 import pytest
 
-from monitoring_etl_flow import cmd, insert_script, transform
+from monitoring_etl_flow import cmd, collect_stats, insert_script, transform
 from prefect.engine.signals import SKIP
 
 
@@ -73,3 +73,9 @@ class TestInsertScript:
         output = insert_script.run(rows)
         assert "\n('2019-10-15', 'chris', 22, 'Oakland', 'USA', 20.9, 42.4);" in output
         assert "INSERT INTO SSHATTEMPTS" in output
+
+
+class TestCollectStats:
+    def test_collect_stats_skips_for_old_timestamps(self):
+        with pytest.raises(SKIP, match="last 24 hours"):
+            collect_stats.run(timestamp=pendulum.now("utc").add(hours=-2.1))
