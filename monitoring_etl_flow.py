@@ -40,7 +40,7 @@ def cmd(last_date):
     if not last_date:
         since = pendulum.now("utc").add(hours=-48).strftime("%Y-%m-%d %H:%M:%S")
     else:
-        since = last_date[-1]
+        since = last_date[-1][0]
     return f'journalctl _COMM=sshd -o json --since "{since}" --no-pager'
 
 
