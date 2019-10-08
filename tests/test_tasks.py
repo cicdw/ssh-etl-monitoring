@@ -3,8 +3,9 @@ Tests of custom tasks.
 """
 import pendulum
 import pytest
+from unittest.mock import MagicMock
 
-from monitoring_etl_flow import cmd, collect_stats, insert_script, transform
+from monitoring_etl_flow import cmd, collect_stats, insert_rows, transform
 from prefect.engine.signals import SKIP
 
 
@@ -54,15 +55,19 @@ class TestTransformTask:
 
 
 class TestInsertScript:
-    def test_insert_script_runs_with_empty_list(self):
+    def test_insert_rows_runs_with_empty_list(self):
         with pytest.raises(SKIP, match="No rows to insert"):
-            insert_script.run([])
+            insert_rows.run([])
 
-    def test_insert_script_correctly_parses_row(self):
+    def test_insert_script_correctly_parses_row(self, monkeypatch):
+        monkeypatch.setattr("monitoring_etl_flow.sqlite3", MagicMock())
+        closing_mock = MagicMock()
+        monkeypatch.setattr("monitoring_etl_flow.closing", closing_mock)
+
         rows = [
             dict(
                 username="chris",
-                port="22",
+                port=22,
                 city="Oakland",
                 country="USA",
                 timestamp="2019-10-15",
@@ -70,9 +75,11 @@ class TestInsertScript:
                 longitude=42.4,
             )
         ]
-        output = insert_script.run(rows)
-        assert "\n('2019-10-15', 'chris', 22, 'Oakland', 'USA', 20.9, 42.4);" in output
-        assert "INSERT INTO SSHATTEMPTS" in output
+        assert insert_rows.run(rows) is None
+
+        args = closing_mock.return_value.__enter__.return_value.executemany.call_args[0]
+        assert "INSERT INTO SSHATTEMPTS" in args[0]
+        assert args[1] == [("2019-10-15", "chris", 22, "Oakland", "USA", 20.9, 42.4)]
 
 
 class TestCollectStats:

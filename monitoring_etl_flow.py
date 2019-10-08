@@ -106,7 +106,7 @@ def insert_rows(rows):
         for row in rows
     ]
 
-    with closing(sql.connect("ssh.db")) as conn:
+    with closing(sqlite3.connect("ssh.db")) as conn:
         with closing(conn.cursor()) as cursor:
             cursor.executemany(insert_cmd, values)
 
