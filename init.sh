@@ -20,6 +20,7 @@ sudo apt-get install gcc -y
 curl -fL https://geolite.maxmind.com/download/geoip/database/GeoLite2-City.tar.gz -o ~/geocities.tar.gz
 cd ~
 tar -xzf geocities.tar.gz # creates file ~/GeoLite2-City_20191001/GeoLite2-City.mmdb
+mv GeoLite* GeoLite/
 
 # create conda environment for example
 conda create -n ssh-example python=3.7 -y

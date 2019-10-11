@@ -18,11 +18,10 @@ jobs:
       - run:
           name: Install GeoCity DB
           command: |
-            curl -fL https://geolite.maxmind.com/download/geoip/database/GeoLite2-City.tar.gz -o /root/geocities.tar.gz
-            cd /root
-            ls -alh
+            curl -fL https://geolite.maxmind.com/download/geoip/database/GeoLite2-City.tar.gz -o ~/geocities.tar.gz
+            cd ~
             tar -xzf geocities.tar.gz # creates file ~/GeoLite2-City_20191001/GeoLite2-City.mmdb
-            ls -alh
+            mv GeoLite* GeoLite/
 
       - run:
           name: Run tests
