@@ -92,7 +92,7 @@ def insert_rows(rows):
     if not rows:
         raise SKIP("No rows to insert into database.")
 
-    insert_cmd = "INSERT INTO SSHATTEMPTS (?, ?, ?, ?, ?, ?, ?) VALUES"
+    insert_cmd = "INSERT INTO SSHATTEMPTS VALUES (?, ?, ?, ?, ?, ?, ?)"
     values = [
         (
             row["timestamp"],
