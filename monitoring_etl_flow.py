@@ -7,6 +7,7 @@ import sqlite3
 from contextlib import closing
 from datetime import datetime, timedelta
 
+import prefect
 from prefect import task, Flow, Parameter
 from prefect.engine.signals import SKIP
 from prefect.schedules import IntervalSchedule
@@ -109,6 +110,7 @@ def insert_rows(rows):
     with closing(sqlite3.connect("ssh.db")) as conn:
         with closing(conn.cursor()) as cursor:
             cursor.executemany(insert_cmd, values)
+            conn.commit()
 
 
 ## reporting
