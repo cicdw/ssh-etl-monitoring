@@ -20,7 +20,9 @@ jobs:
           command: |
             curl -fL https://geolite.maxmind.com/download/geoip/database/GeoLite2-City.tar.gz -o /root/geocities.tar.gz
             cd /root
+            ls -alh
             tar -xzf geocities.tar.gz # creates file ~/GeoLite2-City_20191001/GeoLite2-City.mmdb
+            ls -alh
 
       - run:
           name: Run tests
