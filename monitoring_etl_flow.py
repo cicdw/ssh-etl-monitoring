@@ -4,8 +4,10 @@ import os
 import pendulum
 import re
 import sqlite3
+from contextlib import closing
 from datetime import datetime, timedelta
 
+import prefect
 from prefect import task, Flow, Parameter
 from prefect.engine.signals import SKIP
 from prefect.schedules import IntervalSchedule
@@ -59,7 +61,7 @@ def transform(raw_data):
     user_patt = re.compile("user (.*?) from")
     network_patt = re.compile("from (.*?) port (.*?)$")
 
-    db_path = os.path.expanduser("~/GeoLite2-City_20191001/GeoLite2-City.mmdb")
+    db_path = os.path.expanduser("~/GeoLite/GeoLite2-City.mmdb")
     db_reader = geo_db.Reader(db_path)
 
     for d in data:
@@ -84,28 +86,32 @@ def transform(raw_data):
 
 
 @task
-def insert_script(rows):
+def insert_rows(rows):
     """
-    Given the cleaned data, creates the SQL Query to insert the new data into the DB.
+    Given the cleaned data, inserts the new data into the DB.
     """
-    insert_cmd = "INSERT INTO SSHATTEMPTS (timestamp, username, port, city, country, latitude, longitude) VALUES\n"
     if not rows:
         raise SKIP("No rows to insert into database.")
-    values = (
-        ",\n".join(
-            [
-                "('{timestamp}', '{username}', {port}, '{city}', '{country}', {latitude}, {longitude})".format(
-                    **row
-                )
-                for row in rows
-            ]
+
+    insert_cmd = "INSERT INTO SSHATTEMPTS VALUES (?, ?, ?, ?, ?, ?, ?)"
+    values = [
+        (
+            row["timestamp"],
+            row["username"],
+            row["port"],
+            row["city"],
+            row["country"],
+            row["latitude"],
+            row["longitude"],
         )
-        + ";"
-    )
-    return insert_cmd + values
+        for row in rows
+    ]
 
+    with closing(sqlite3.connect("ssh.db")) as conn:
+        with closing(conn.cursor()) as cursor:
+            cursor.executemany(insert_cmd, values)
+            conn.commit()
 
-insert = SQLiteScript(name="Insert into DB", db="ssh.db")
 
 ## reporting
 ## - every day, send email report
@@ -154,7 +160,7 @@ with Flow("SSH ETL Monitoring", schedule=schedule) as flow:
     raw_data = shell_task(command=cmd(date))
     clean_data = transform(raw_data)
 
-    db_insert = insert(insert_script(clean_data))
+    db_insert = insert_rows(clean_data)
 
     report_stats = collect_stats(timestamp=timestamp, upstream_tasks=[db_insert])
     final = email_report(msg=format_report(report_stats))
