@@ -5,3 +5,5 @@ This repo provides a fully realized [Prefect](https://github.com/PrefectHQ/prefe
 ### monitoring_etl_flow.py
 
 This flow runs every two hours, and collects information on all invalid ssh attempts in a local SQLite3 database.  Every 24 hours, an e-mail report of the top attempted usernames is sent out.
+
+![Flow Visualization](images/local_flow.svg)
